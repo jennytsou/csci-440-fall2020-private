@@ -8,9 +8,13 @@ import static spark.Spark.*;
 class Server {
 
     public static void main(String[] args) {
+
         get("/", (req, resp) -> Web.renderTemplate("templates/index.vm",
                 "message", "SQL Is Awesome!",
                 "employees", Employee.all(1, 10)));
+
+        get("/employees/:id", (req, resp) -> Web.renderTemplate("templates/employees/show.vm",
+                "employee", Employee.find(Integer.parseInt(req.params(":id")))));
     }
 
 }

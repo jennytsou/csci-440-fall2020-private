@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Employee extends Model {
 
-    private Integer employeeId;
+    private long employeeId;
     private String firstName;
     private String lastName;
     private String email;
@@ -22,6 +22,7 @@ public class Employee extends Model {
         firstName = results.getString("FirstName");
         lastName = results.getString("LastName");
         email = results.getString("Email");
+        employeeId = results.getLong("EmployeeId");
     }
 
     public static List<Employee> all(int page, int count) {
@@ -40,6 +41,21 @@ public class Employee extends Model {
 
     public static Employee findByEmail(String newEmailAddress) {
         throw new UnsupportedOperationException("Implement me");
+    }
+
+    public static Employee find(long employeeId) {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM employees WHERE EmployeeId=?")) {
+            stmt.setLong(1, employeeId);
+            ResultSet results = stmt.executeQuery();
+            if (results.next()) {
+                return new Employee(results);
+            } else {
+                return null;
+            }
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
 
     public String getFirstName() {
@@ -66,7 +82,7 @@ public class Employee extends Model {
         this.email = email;
     }
 
-    public Integer getEmployeeId() {
+    public long getEmployeeId() {
         return employeeId;
     }
 

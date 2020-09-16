@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        main {
+            max-width: 46em;
+            margin: 2em auto;
+            padding: 0 1em;
+            overflow: hidden;
+            word-wrap: break-word;
+        }
+    </style>
+    <title>Hello CSCI 440</title>
+</head>
+<body>
+<main>

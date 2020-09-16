@@ -1,48 +1,32 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <link rel="stylesheet" href="https://unpkg.com/style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        main {
-            max-width: 46em;
-            margin: 2em auto;
-            padding: 0 1em;
-            overflow: hidden;
-            word-wrap: break-word;
-        }
-    </style>
-    <title>Hello World</title>
-</head>
-<body>
-<main>
-    <h1><img src="https://avatars2.githubusercontent.com/u/67816555?s=50&v=4"> CS 440 - Databases</h1>
+#parse('templates/header.vm')
 
-    <p>Welcome to the CS 440 Database web project.</p>
+<h1><img src="https://avatars2.githubusercontent.com/u/67816555?s=50&v=4"> CS 440 - Databases</h1>
 
-    <h3>Today's Message: $message</h3>
+<p>Welcome to the CS 440 Database web project.</p>
 
-    <h3>Employees</h3>
+<h3>Today's Message: $message</h3>
 
-    <table>
-        <thead>
+<h3>Employees</h3>
+
+<table>
+    <thead>
+    <tr>
+        <th>Employee ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+    </tr>
+    </thead>
+    <tbody>
+        #foreach( $employee in $employees )
         <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
+            <td><a href="/employees/$employee.EmployeeId">$employee.EmployeeId</a></td>
+            <td>$employee.FirstName</td>
+            <td>$employee.LastName</td>
+            <td>$employee.Email</td>
         </tr>
-        </thead>
-        <tbody>
-            #foreach( $employee in $employees )
-                <tr>
-                    <td>$employee.FirstName</td>
-                    <td>$employee.LastName</td>
-                    <td>$employee.Email</td>
-                </tr>
-            #end
-        </tbody>
-    </table>
+        #end
+    </tbody>
+</table>
 
-</main>
-</body>
-</html>
+#parse('templates/header.vm')
