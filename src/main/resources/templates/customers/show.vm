@@ -1,6 +1,6 @@
 #parse('templates/header.vm')
 
-<h2>Employee</h2>
+<h2>Customer</h2>
 
 <table>
     <thead>
@@ -12,21 +12,21 @@
     <tbody>
     <tr>
         <td>FirstName</td>
-        <td>$!employee.FirstName</td>
+        <td>$!customer.FirstName</td>
     </tr>
     <tr>
         <td>LastName</td>
-        <td>$!employee.lastName</td>
+        <td>$!customer.lastName</td>
     </tr>
     <tr>
         <td>Email</td>
-        <td>$!employee.email</td>
+        <td>$!customer.email</td>
     </tr>
     </tbody>
 </table>
 
-<a href="/employees/$employee.EmployeeId/edit">[Edit Employee]</a>
-<a href="/employees/$employee.EmployeeId/delete">[Delete Employee]</a>
+<a href="/customers/$customer.CustomerId/edit">[Edit Customer]</a>
+<a href="/customers/$customer.CustomerId/delete">[Delete Customer]</a>
 
 
 #parse('templates/footer.vm')
