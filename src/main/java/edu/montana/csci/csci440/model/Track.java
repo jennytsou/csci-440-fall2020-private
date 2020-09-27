@@ -16,6 +16,7 @@ import java.util.List;
 public class Track extends Model {
 
     private long trackId;
+    private long albumId;
     private String name;
     private long milliseconds;
     private long bytes;
@@ -30,7 +31,8 @@ public class Track extends Model {
         milliseconds = results.getLong("Milliseconds");
         bytes = results.getLong("Bytes");
         unitPrice = results.getBigDecimal("UnitPrice");
-        trackId = results.getLong("trackId");
+        trackId = results.getLong("TrackId");
+        albumId = results.getLong("AlbumId");
     }
 
     public static Track find(int i) {
@@ -49,8 +51,10 @@ public class Track extends Model {
     }
 
     public Album getAlbum() {
+        // TODO implement
         return null;
     }
+
     public MediaType getMediaType() {
         return null;
     }
@@ -104,6 +108,14 @@ public class Track extends Model {
         this.unitPrice = unitPrice;
     }
 
+    public long getAlbumId() {
+        return albumId;
+    }
+
+    public void setAlbumId(long albumId) {
+        this.albumId = albumId;
+    }
+
     public static List<Track> advancedSearch(int page, int count,
                                              String search, Integer artistId, Integer albumId,
                                              Integer maxRuntime, Integer minRuntime) {
@@ -147,6 +159,22 @@ public class Track extends Model {
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, search);
             stmt.setInt(2, count);
+            ResultSet results = stmt.executeQuery();
+            List<Track> resultList = new LinkedList<>();
+            while (results.next()) {
+                resultList.add(new Track(results));
+            }
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+    }
+
+    public static List<Track> forAlbum(long albumId) {
+        String query = "SELECT * FROM tracks WHERE AlbumId=?";
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setLong(1, albumId);
             ResultSet results = stmt.executeQuery();
             List<Track> resultList = new LinkedList<>();
             while (results.next()) {

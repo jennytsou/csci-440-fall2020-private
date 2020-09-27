@@ -37,7 +37,7 @@
     </tr>
     <tr>
         <td>Album</td>
-        <td>$web.select('Album', 'Title', $track.AlbumId)</td>
+        <td>$web.select('Album', 'Title', $track.AlbumId, false)</td>
     </tr>
     </tbody>
 </table>

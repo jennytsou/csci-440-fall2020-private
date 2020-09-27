@@ -177,7 +177,7 @@ public class Web {
         }
     }
 
-    public String select(String model, String displayProperty, Integer selected) throws Exception {
+    public String select(String model, String displayProperty, Object selected) throws Exception {
         return select(model, displayProperty, selected, false);
     }
 
