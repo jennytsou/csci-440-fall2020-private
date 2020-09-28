@@ -38,10 +38,7 @@ public class EmployeesController {
         });
 
         get("/employees/tree", (request, response) -> {
-            // TODO, you will need to change this to a different data structure
-            // to make this a single query operation
-            Employee employee = Employee.find(1); // root employee
-            String employeeTree = EmployeeHelper.makeTreeRoot(employee);
+            String employeeTree = EmployeeHelper.makeEmployeeTree();
             return Web.renderTemplate("templates/employees/tree.vm",
                     "employeeTree", employeeTree);
         });

@@ -17,6 +17,8 @@ public class Track extends Model {
 
     private long trackId;
     private long albumId;
+    private long mediaTypeId;
+    private long genreId;
     private String name;
     private long milliseconds;
     private long bytes;
@@ -33,6 +35,8 @@ public class Track extends Model {
         unitPrice = results.getBigDecimal("UnitPrice");
         trackId = results.getLong("TrackId");
         albumId = results.getLong("AlbumId");
+        mediaTypeId = results.getLong("MediaTypeId");
+        genreId = results.getLong("GenreId");
     }
 
     public static Track find(int i) {
@@ -50,9 +54,22 @@ public class Track extends Model {
         }
     }
 
+    public static long count() {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) as Count FROM tracks")) {
+            ResultSet results = stmt.executeQuery();
+            if (results.next()) {
+                return results.getLong("Count");
+            } else {
+                throw new IllegalStateException("Should find a count!");
+            }
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+    }
+
     public Album getAlbum() {
-        // TODO implement
-        return null;
+        return Album.find(albumId);
     }
 
     public MediaType getMediaType() {
@@ -116,6 +133,34 @@ public class Track extends Model {
         this.albumId = albumId;
     }
 
+    public long getMediaTypeId() {
+        return mediaTypeId;
+    }
+
+    public void setMediaTypeId(long mediaTypeId) {
+        this.mediaTypeId = mediaTypeId;
+    }
+
+    public long getGenreId() {
+        return genreId;
+    }
+
+    public void setGenreId(long genreId) {
+        this.genreId = genreId;
+    }
+
+    public String getArtistName() {
+        // TODO implement more efficiently
+        //  hint: cache on this model object
+        return getAlbum().getArtist().getName();
+    }
+
+    public String getAlbumTitle() {
+        // TODO implement more efficiently
+        //  hint: cache on this model object
+        return getAlbum().getTitle();
+    }
+
     public static List<Track> advancedSearch(int page, int count,
                                              String search, Integer artistId, Integer albumId,
                                              Integer maxRuntime, Integer minRuntime) {
@@ -152,7 +197,7 @@ public class Track extends Model {
         }
     }
 
-    public static List<Track> search(int page, int count, String search) {
+    public static List<Track> search(int page, int count, String orderBy, String search) {
         String query = "SELECT * FROM tracks WHERE name LIKE ? LIMIT ?";
         search = "%" + search + "%";
         try (Connection conn = DB.connect();
@@ -186,7 +231,7 @@ public class Track extends Model {
         }
     }
 
-    public static List<Track> all(int page, int count) {
+    public static List<Track> all(int page, int count, String orderBy) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
                      "SELECT * FROM tracks LIMIT ?"

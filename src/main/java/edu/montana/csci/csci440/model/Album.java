@@ -74,7 +74,7 @@ public class Album extends Model {
         }
     }
 
-    public static Album find(int i) {
+    public static Album find(long i) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM albums WHERE AlbumId=?")) {
             stmt.setLong(1, i);
