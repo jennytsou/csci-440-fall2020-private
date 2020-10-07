@@ -6,6 +6,7 @@ import edu.montana.csci.csci440.util.Web;
 
 import java.util.List;
 
+import static edu.montana.csci.csci440.model.Track.*;
 import static spark.Spark.get;
 import static spark.Spark.post;
 
@@ -36,12 +37,12 @@ public class TracksController {
             String orderBy = req.queryParams("o");
             List<Track> tracks;
             if (search != null) {
-                tracks = Track.search(Web.getPage(), Web.PAGE_SIZE, orderBy, search);
+                tracks = search(Web.getPage(), Web.PAGE_SIZE, orderBy, search);
             } else {
-                tracks = Track.all(Web.getPage(), Web.PAGE_SIZE, orderBy);
+                tracks = all(Web.getPage(), Web.PAGE_SIZE, orderBy);
             }
             // TODO - implement cache of count w/ Redis
-            long totalTracks = Track.count();
+            long totalTracks = count();
             return Web.renderTemplate("templates/tracks/index.vm",
                     "tracks", tracks, "totalTracks", totalTracks);
         });
@@ -49,7 +50,7 @@ public class TracksController {
         get("/tracks/search", (req, resp) -> {
             String search = req.queryParams("q");
             List<Track> tracks;
-            tracks = Track.advancedSearch(Web.getPage(), Web.PAGE_SIZE,
+            tracks = advancedSearch(Web.getPage(), Web.PAGE_SIZE,
                     search,
                     Web.integerOrNull("ArtistId"),
                     Web.integerOrNull("AlbumId"),
@@ -60,20 +61,20 @@ public class TracksController {
         });
 
         get("/tracks/:id", (req, resp) -> {
-            Track track = Track.find(Integer.parseInt(req.params(":id")));
+            Track track = find(Integer.parseInt(req.params(":id")));
             return Web.renderTemplate("templates/tracks/show.vm",
                     "track", track);
         });
 
         /* UPDATE */
         get("/tracks/:id/edit", (req, resp) -> {
-            Track track = Track.find(Integer.parseInt(req.params(":id")));
+            Track track = find(Integer.parseInt(req.params(":id")));
             return Web.renderTemplate("templates/tracks/edit.vm",
                     "track", track);
         });
 
         post("/tracks/:id", (req, resp) -> {
-            Track track = Track.find(Integer.parseInt(req.params(":id")));
+            Track track = find(Integer.parseInt(req.params(":id")));
             Web.putValuesInto(track, "Name", "Milliseconds", "Bytes", "UnitPrice");
             if (track.update()) {
                 Web.message("Updated Track!");
@@ -87,7 +88,7 @@ public class TracksController {
 
         /* DELETE */
         get("/tracks/:id/delete", (req, resp) -> {
-            Track track = Track.find(Integer.parseInt(req.params(":id")));
+            Track track = find(Integer.parseInt(req.params(":id")));
             track.delete();
             Web.message("Deleted Track " + track.getName());
             return Web.redirect("/tracks");
