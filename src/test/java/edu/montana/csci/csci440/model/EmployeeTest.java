@@ -78,6 +78,7 @@ public class EmployeeTest extends DBTest {
         emp.update();
 
         Employee found = Employee.findByEmail(newEmailAddress);
+        System.out.println(found.getEmployeeId());
         assertEquals(emp.getEmployeeId(), found.getEmployeeId());
     }
 

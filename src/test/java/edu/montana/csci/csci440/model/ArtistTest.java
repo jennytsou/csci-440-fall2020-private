@@ -33,7 +33,6 @@ public class ArtistTest extends DBTest {
         assertNull(artist.getArtistId());
         artist.create();
         assertNotNull(artist.getArtistId());
-
         assertEquals(artist.find(artist.getArtistId()), artist);
     }
 
@@ -45,6 +44,7 @@ public class ArtistTest extends DBTest {
 
         acdc1.setName(newName);
         assertTrue(acdc1.update());
+
         assertEquals(newName, Artist.find(1).getName());
 
         // should fail, since a row w/ name "AC/DC" can't be found

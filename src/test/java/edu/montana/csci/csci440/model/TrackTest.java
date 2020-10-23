@@ -33,6 +33,8 @@ public class TrackTest extends DBTest {
         track.setAlbum(Album.find(1));
 
         assertNull(track.getTrackId());
+        System.out.println(track.getTrackId());
+        System.out.println(track.getMediaTypeId());
         track.create();
         assertNotNull(track.getTrackId());
 
@@ -69,6 +71,7 @@ public class TrackTest extends DBTest {
         long connectionCount = DB.getConnectionCount();
         String artistName = track.getArtistName();
         assertEquals("AC/DC", artistName);
+
         assertEquals(connectionCount, DB.getConnectionCount());
     }
 
@@ -90,6 +93,7 @@ public class TrackTest extends DBTest {
     @Test
     void testTrackListsWorks() {
         Track track = Track.find(1);
+        System.out.println(track.getName());
         assertEquals(3, track.getPlaylists().size());
     }
 

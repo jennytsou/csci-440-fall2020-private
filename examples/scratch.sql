@@ -53,3 +53,5 @@ create table grammy_infos (
 create table grammy_categories (
     GrammyCategoryId INTEGER NOT NULL PRIMARY KEY,
     Name   NVARCHAR(200));
+
+SELECT * FROM tracks where MediaTypeId=3;
