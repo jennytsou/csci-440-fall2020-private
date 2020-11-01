@@ -43,6 +43,7 @@ public class EmployeeTest extends DBTest {
 
         assertNull(emp.getEmployeeId());
         emp.create();
+
         assertNotNull(emp.getEmployeeId());
 
         assertEquals(Employee.find(1), emp.getBoss());
@@ -87,6 +88,7 @@ public class EmployeeTest extends DBTest {
     void testEmployeeHelperOnlyIssuesOneQuery(){
         long connectionCount = DB.getConnectionCount();
         String str = EmployeeHelper.makeEmployeeTree();
+        System.out.println(connectionCount);
         assertNotNull(str);
         assertEquals(1, DB.getConnectionCount() - connectionCount );
     }

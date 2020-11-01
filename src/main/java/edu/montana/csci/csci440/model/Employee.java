@@ -32,6 +32,8 @@ public class Employee extends Model {
 
     public static List<Employee.SalesSummary> getSalesSummaries() {
         //TODO - a GROUP BY query to determine the sales (look at the invoices table), using the SalesSummary class
+
+
         return Collections.emptyList();
     }
 
@@ -75,10 +77,11 @@ public class Employee extends Model {
         if (verify()) {
             try (Connection conn = DB.connect();
                  PreparedStatement stmt = conn.prepareStatement(
-                         "INSERT INTO employees (FirstName, LastName, Title, Email) VALUES (?, ?, ?, ?)")) {
-                stmt.setString(1, this.getFirstName());
-                stmt.setString(2, this.getLastName());
-                stmt.setString(3, this.getEmail());
+                         "INSERT INTO employees (LastName, FirstName, Title, Email) VALUES (?, ?, ?, ?)")) {
+                stmt.setString(1, this.getLastName());
+                stmt.setString(2, this.getFirstName());
+                stmt.setString(3, title);
+                stmt.setString(4, this.getEmail());
                 stmt.executeUpdate();
                 employeeId = DB.getLastID(conn);
                 return true;
@@ -155,7 +158,9 @@ public class Employee extends Model {
     }
     public Employee getBoss() {
         //TODO implement
-        return null;
+ /*       return null;  */
+        reportsTo = getReportsTo();         /* added Jenny */
+        return Employee.find(reportsTo);    /* added Jenny */
     }
 
     public static List<Employee> all() {
@@ -220,8 +225,10 @@ public class Employee extends Model {
 
     public void setReportsTo(Employee employee) {
         // TODO implement
-        this.employeeId = employee.getEmployeeId(); /* added Jenny */
-        System.out.println(this.employeeId);    /* added Jenny */
+        Long i = employee.getEmployeeId();  /* added Jenny */
+        this.employeeId = reportsTo; /* added Jenny */
+        setReportsTo(i);            /* added Jenny */
+
     }
 
     public static class SalesSummary {

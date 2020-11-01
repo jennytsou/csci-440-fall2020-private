@@ -33,22 +33,26 @@ public class Homework4 extends DBTest {
 
         try(Connection connection = DB.connect()){
             connection.setAutoCommit(false);
-            PreparedStatement subtract = connection.prepareStatement("TODO");
-            subtract.setLong(1, 0);
-            subtract.setLong(2, 0);
+            PreparedStatement subtract = connection.prepareStatement("UPDATE tracks " +
+                    "SET milliseconds= ? WHERE TrackId = ?");
+            subtract.setLong(1, track1.getMilliseconds()- 10);
+            subtract.setLong(2, track1.getTrackId());
             subtract.execute();
 
-            PreparedStatement add = connection.prepareStatement("TODO");
-            subtract.setLong(1, 0);
-            subtract.setLong(2, 0);
-            subtract.execute();
+            PreparedStatement add = connection.prepareStatement("UPDATE tracks " +
+                    "SET Milliseconds=(Milliseconds + ?) WHERE TrackId = ?");
+            add.setLong(1, 10);
+            add.setLong(2, track2.getTrackId());
+            add.execute();
 
             // commit with the connection
+            connection.commit();
         }
 
         // refresh tracks from db
         track1 = Track.find(1);
         track2 = Track.find(2);
+
         assertEquals(track1.getMilliseconds(), track1InitialTime - 10);
         assertEquals(track2.getMilliseconds(), track2InitialTime + 10);
     }
@@ -66,12 +70,18 @@ public class Homework4 extends DBTest {
     public void selectPopularTracksAndTheirAlbums() throws SQLException {
 
         // HINT: join to invoice items and do a group by/having to get the right answer
-        List<Map<String, Object>> tracks = executeSQL("");
+        List<Map<String, Object>> tracks = executeSQL("SELECT * FROM albums\n" +
+                "JOIN tracks ON tracks.AlbumId = albums.AlbumId\n" +
+                "JOIN invoice_items ON invoice_items.TrackId = tracks.TrackId\n" +
+                "GROUP BY tracks.TrackId having count(*)>1;");
         assertEquals(256, tracks.size());
 
         // HINT: join to tracks and invoice items and do a group by/having to get the right answer
         //       note: you will need to use the DISTINCT operator to get the right result!
-        List<Map<String, Object>> albums = executeSQL("");
+        List<Map<String, Object>> albums = executeSQL("SELECT DISTINCT albums.AlbumId FROM albums\n" +
+                "JOIN tracks ON tracks.AlbumId = albums.AlbumId\n" +
+                "JOIN invoice_items ON invoice_items.TrackId = tracks.TrackId\n" +
+                "GROUP BY tracks.TrackId having count(*)>1;");
         assertEquals(166, albums.size());
     }
 
@@ -84,7 +94,13 @@ public class Homework4 extends DBTest {
      * */
     public void selectCustomersMeetingCriteria() throws SQLException {
         // HINT: join to invoice items and do a group by/having to get the right answer
-        List<Map<String, Object>> tracks = executeSQL("" );
+        List<Map<String, Object>> tracks = executeSQL("SELECT CustomerId, Email FROM customers\n" +
+                "WHERE customers.SupportRepId IN\n" +
+                "(SELECT EmployeeId FROM employees\n" +
+                "JOIN invoices ON invoices.CustomerId = customers.CustomerId\n" +
+                "JOIN invoice_items ON invoice_items.invoiceId = invoices.invoiceId\n" +
+                "WHERE employees.LastName = 'Peacock' and employees.FirstName='Jane'\n" +
+                "GROUP BY invoice_items.InvoiceId having count(*)>1);");
         assertEquals(21, tracks.size());
     }
 

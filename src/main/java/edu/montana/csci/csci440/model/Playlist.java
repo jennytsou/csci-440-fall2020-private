@@ -18,16 +18,34 @@ public class Playlist extends Model {
     public Playlist() {
     }
 
-    private Playlist(ResultSet results) throws SQLException {
+    public Playlist(ResultSet results) throws SQLException {
         name = results.getString("Name");
         playlistId = results.getLong("PlaylistId");
     }
 
-
     public List<Track> getTracks(){
         // TODO implement, order by track name
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT * FROM tracks\n" +
+                             "JOIN playlist_track ON playlist_track.TrackId = tracks.TrackId\n" +
+                             "JOIN playlists ON playlists.PlaylistId = playlist_track.PlaylistId\n" +
+                             "WHERE playlists.PlaylistId = ? order by tracks.Name;"
+             )) {
+            stmt.setLong(1, getPlaylistId());
+            System.out.println(getPlaylistId());
+            System.out.println(this.getName());
+            ResultSet results = stmt.executeQuery();
+            List<Track> resultList = new LinkedList<>();
+            while (results.next()) {
+               resultList.add(new Track(results));
+            }
 
-        return Collections.emptyList();     /* original code */
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+
     }
 
     public Long getPlaylistId() {
