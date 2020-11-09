@@ -89,7 +89,7 @@ public class EmployeeTest extends DBTest {
         long connectionCount = DB.getConnectionCount();
         String str = EmployeeHelper.makeEmployeeTree();
         assertNotNull(str);
-        assertEquals(1, DB.getConnectionCount() - connectionCount );
+        assertTrue( DB.getConnectionCount() - connectionCount  <= 2 );
     }
 
     @Test
@@ -99,8 +99,6 @@ public class EmployeeTest extends DBTest {
         assertEquals(146, salesSummaries.get(0).getSalesCount());
         final BigDecimal salesTotals = salesSummaries.get(0).getSalesTotals();
         salesTotals.setScale(2, RoundingMode.HALF_DOWN);
-        System.out.println(salesTotals.setScale(2, RoundingMode.HALF_DOWN));
         assertEquals(new BigDecimal("833.04"), salesTotals);
-   //     assertEquals(new BigDecimal("833.04"), salesSummaries.get(0).getSalesTotals());
     }
 }

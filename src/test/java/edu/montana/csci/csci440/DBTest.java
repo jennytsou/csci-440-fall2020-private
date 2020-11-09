@@ -27,7 +27,6 @@ public class DBTest {
         } catch (Exception e) {
             System.out.println("No redis found to reset");
         }
-
     }
 
     public boolean executeDDL(String ddl) {

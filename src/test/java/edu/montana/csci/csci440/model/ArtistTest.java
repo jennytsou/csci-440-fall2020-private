@@ -37,7 +37,6 @@ public class ArtistTest extends DBTest {
         Artist fromDb = artist.find(artist.getArtistId());
         assertEquals(fromDb.getName(), artist.getName());
         assertEquals(fromDb.getArtistId(), artist.getArtistId());
-    //    assertEquals(artist.find(artist.getArtistId()), artist);
     }
 
     @Test
