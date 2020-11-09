@@ -10,7 +10,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Track extends Model {
 
@@ -22,17 +25,19 @@ public class Track extends Model {
     private Long milliseconds;
     private Long bytes;
     private BigDecimal unitPrice;
+    private String ArtistName;
+    private String AlbumName;
 
+    public static final String REDIS_CACHE_KEY = "cs440-tracks-count-cache";
 
     public Track() {
-        // new track for insertj
-        long i = 1;                 /* added Jenny */
-        BigDecimal b1;              /* added Jenny */
-        b1 = new BigDecimal(1); /* added Jenny */
-        this.mediaTypeId = i;       /* added Jenny */
-        this.genreId = i;           /* added Jenny */
-        this.milliseconds = i;      /* added Jenny */
-        this.unitPrice = b1;        /* added Jenny */
+        // new track for insert
+        mediaTypeId = 1l;
+        genreId = 1l;
+        milliseconds  = 0l;
+        bytes  = 0l;
+        unitPrice = new BigDecimal("0");
+
     }
 
     public Track(ResultSet results) throws SQLException {
@@ -44,11 +49,18 @@ public class Track extends Model {
         albumId = results.getLong("AlbumId");
         mediaTypeId = results.getLong("MediaTypeId");
         genreId = results.getLong("GenreId");
+        ArtistName = results.getString("ArtistName");
+        AlbumName = results.getString("AlbumName");
     }
 
-    public static Track find(int i) {
+    public static Track find(long i) {
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM tracks WHERE TrackId=?")) {
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT tracks.*, albums.Title as AlbumName, " +
+                             "artists.name as ArtistName FROM tracks " +
+                             "JOIN albums ON albums.AlbumId = tracks.AlbumId " +
+                             "JOIN artists ON artists.ArtistId = albums.ArtistId " +
+                             "WHERE TrackId=?")) {
             stmt.setLong(1, i);
             ResultSet results = stmt.executeQuery();
             if (results.next()) {
@@ -62,9 +74,22 @@ public class Track extends Model {
     }
 
     public static Long count() {
+   //     Map<Long, List<Track>> employeeMap = new HashMap<>();
         Jedis redisClient = new Jedis(); // use this class to access redis and create a cache
+        String str = redisClient.get(REDIS_CACHE_KEY);
+
+        System.out.println(str);
+        if (str == null) {
+            System.out.println(str);
+            str = "cs440-tracks-count-cache";
+            redisClient.set(REDIS_CACHE_KEY, str);
+        }
+        System.out.println(redisClient);
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) as Count FROM tracks")) {
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT COUNT(*) as Count FROM tracks"
+             )) {
+            System.out.println(DB.getConnectionCount());
             ResultSet results = stmt.executeQuery();
             if (results.next()) {
                 return results.getLong("Count");
@@ -96,7 +121,7 @@ public class Track extends Model {
                              "ON playlist_track.TrackId = playlists.PlaylistId where playlist_track.TrackId= ?;"
              )) {
             stmt.setLong(1, trackId);
-            System.out.println(trackId);
+
             ResultSet results = stmt.executeQuery();
             List<Playlist> resultList = new LinkedList<>();
             while (results.next()) {
@@ -176,21 +201,20 @@ public class Track extends Model {
         this.genreId = genreId;
     }
 
+
     public String getArtistName() {
         // TODO implement more efficiently
         //  hint: cache on this model object
-        Artist artist = Artist.find(albumId);
-        return getAlbum().getArtist().getName();
+
+        return ArtistName;
+    //    return getAlbum().getArtist().getName();
     }
 
     public String getAlbumTitle() {
         // TODO implement more efficiently
         //  hint: cache on this model object
-        Album album = Album.find(1);
-        System.out.println(album.getTitle());
-        setAlbumId(getAlbumId());
-
-        return getAlbum().getTitle();
+        return AlbumName;
+    //    return getAlbum().getTitle();
     }
 
     public static List<Track> advancedSearch(int page, int count,
@@ -274,7 +298,11 @@ public class Track extends Model {
 
 
     public static List<Track> all(int page, int count, String orderBy) {
-        String query = "SELECT * FROM tracks ORDER BY " + orderBy + " LIMIT ? OFFSET ?";
+        String query = "SELECT tracks.*, albums.Title as AlbumName, " +
+                "artists.name as ArtistName FROM tracks " +
+                "JOIN albums ON albums.AlbumId = tracks.AlbumId " +
+                "JOIN artists ON artists.ArtistId = albums.ArtistId " +
+                "ORDER BY " + orderBy + " LIMIT ? OFFSET ?";
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, count);
@@ -290,6 +318,8 @@ public class Track extends Model {
             throw new RuntimeException(sqlException);
         }
     }
+
+//    String query = "SELECT * FROM tracks ORDER BY " + orderBy + " LIMIT ? OFFSET ?";
 
     @Override
     public boolean verify() {

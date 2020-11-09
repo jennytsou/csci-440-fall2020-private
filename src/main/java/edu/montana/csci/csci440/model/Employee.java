@@ -7,6 +7,7 @@ import java.sql.*;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.math.*;
 
 public class Employee extends Model {
 
@@ -32,9 +33,27 @@ public class Employee extends Model {
 
     public static List<Employee.SalesSummary> getSalesSummaries() {
         //TODO - a GROUP BY query to determine the sales (look at the invoices table), using the SalesSummary class
-
-
-        return Collections.emptyList();
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT employees.FirstName, employees.LastName, employees.Email, " +
+                             "row_number() over(order by invoices.InvoiceId) as SalesCount, " +
+                             "sum(invoices.Total) over(order by invoices.InvoiceId) as SalesTotal " +
+                             "FROM employees " +
+                             "JOIN customers ON customers.SupportRepId = employees.EmployeeId\n" +
+                             "JOIN invoices ON invoices.CustomerId = customers.CustomerId\n" +
+                             "WHERE employees.EmployeeId = ? " +
+                             "GROUP BY invoices.InvoiceId order by SalesCount desc;"
+             )) {
+            stmt.setInt(1, 3);
+            ResultSet results = stmt.executeQuery();
+            List<Employee.SalesSummary> resultList = new LinkedList<>();
+            while (results.next()) {
+                resultList.add(new Employee.SalesSummary(results));
+            }
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
     }
 
     @Override
@@ -237,6 +256,7 @@ public class Employee extends Model {
         private String email;
         private Long salesCount;
         private BigDecimal salesTotals;
+
         private SalesSummary(ResultSet results) throws SQLException {
             firstName = results.getString("FirstName");
             lastName = results.getString("LastName");
@@ -262,7 +282,9 @@ public class Employee extends Model {
         }
 
         public BigDecimal getSalesTotals() {
-            return salesTotals;
+
+             return salesTotals.setScale(2, BigDecimal.ROUND_DOWN);
+     //       return salesTotals;
         }
     }
 

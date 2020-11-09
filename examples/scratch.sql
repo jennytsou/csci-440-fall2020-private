@@ -10,7 +10,7 @@ SELECT artists.Name as ArtistName, albums.Title as AlbumTitle, tracks.Name as Ge
 JOIN albums ON albums.AlbumId = tracks.AlbumId
 JOIN artists ON artists.ArtistId = albums.ArtistId;
 
-SELECT * from tracks;
+SELECT count(*) from tracks;
 
 CREATE TABLE albums_bak (
                             AlbumId  INTEGER,
@@ -68,12 +68,6 @@ GROUP BY tracks.TrackId having count(*)>1;
 
 SELECT CustomerId, Email FROM customers
 WHERE customers.SupportRepId IN
-    (SELECT EmployeeId FROM employees
-    JOIN invoice_items ON invoice_items.CustomerId = customers.CustomerId
-    WHERE employees.LastName = 'Peacock' and employees.FirstName='Jane');
-
-SELECT CustomerId, Email FROM customers
-WHERE customers.SupportRepId IN
 (SELECT EmployeeId FROM employees
 JOIN invoices ON invoices.CustomerId = customers.CustomerId
 JOIN invoice_items ON invoice_items.invoiceId = invoices.invoiceId
@@ -89,3 +83,20 @@ WHERE playlists.PlaylistId = 3 order by tracks.Name;
 
 SELECT * FROM playlists
 JOIN playlist_track ON playlist_track.TrackId = playlists.PlaylistId where playlist_track.TrackId=1;
+
+SELECT * FROM employees
+JOIN customers ON customers.SupportRepId = employees.EmployeeId
+JOIN invoices ON invoices.CustomerId = customers.CustomerId
+WHERE employees.EmployeeId = 3
+GROUP BY invoices.InvoiceId;
+
+SELECT employees.FirstName, employees.LastName, employees.Email, invoices.Total  FROM employees
+JOIN customers ON customers.SupportRepId = employees.EmployeeId
+JOIN invoices ON invoices.CustomerId = customers.CustomerId
+WHERE employees.EmployeeId = 3;
+GROUP BY invoices.InvoiceId;
+
+SELECT tracks.TrackId, albums.AlbumId, artists.Name FROM tracks
+JOIN albums ON albums.AlbumId = tracks.TrackId
+JOIN artists ON artists.ArtistId = albums.ArtistId
+WHERE tracks.TrackId = 1;

@@ -77,7 +77,7 @@ public class TrackTest extends DBTest {
     void testAlbumNameIsStoredOnTrack() {
         Track track = Track.find(1);
         long connectionCount = DB.getConnectionCount();
-        System.out.println(connectionCount);
+
         String albumTitle = track.getAlbumTitle();
         assertEquals("For Those About To Rock We Salute You", albumTitle);
         assertEquals(connectionCount, DB.getConnectionCount());
