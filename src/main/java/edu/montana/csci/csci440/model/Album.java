@@ -57,6 +57,8 @@ public class Album extends Model {
         return artistId;
     }
 
+    public void setArtistId(Long artistId) { this.artistId = artistId; }
+
     public static List<Album> all() {
         return all(0, Integer.MAX_VALUE);
     }
@@ -85,6 +87,8 @@ public class Album extends Model {
         if (title == null || "".equals(title)) {
             addError("Title can't be null or blank!");
         }
+
+    //    if (artistId == null || "".equals(artistId)) {
         if (artistId == null || "".equals(artistId)) {
             addError("artistId can't be null!");
         }
@@ -93,6 +97,7 @@ public class Album extends Model {
 
     @Override
     public boolean create() {
+
         if (verify()) {
             try (Connection conn = DB.connect();
                  PreparedStatement stmt = conn.prepareStatement(
@@ -109,7 +114,6 @@ public class Album extends Model {
             return false;
         }
     }
-
 
     @Override
     public boolean update() {
@@ -146,7 +150,22 @@ public class Album extends Model {
 
     public static List<Album> getForArtist(Long artistId) {
         // TODO implement
+
+    //   getForArtist(Artist.artistId);
         return Collections.emptyList();
     }
 
+    @Override
+    public void delete() {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "DELETE FROM albums WHERE AlbumID=?")) {
+            stmt.setLong(1, this.getAlbumId());
+            int i = stmt.executeUpdate();
+            if (i==1)
+                System.out.println("Delete album title " + getTitle());
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+    }
 }

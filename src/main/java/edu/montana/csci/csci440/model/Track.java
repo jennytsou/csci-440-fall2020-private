@@ -55,7 +55,7 @@ public class Track extends Model {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
                      "SELECT tracks.*, albums.Title as AlbumName, " +
-                             "artists.name as ArtistName FROM tracks " +
+                             "artists.Name as ArtistName FROM tracks " +
                              "JOIN albums ON albums.AlbumId = tracks.AlbumId " +
                              "JOIN artists ON artists.ArtistId = albums.ArtistId " +
                              "WHERE TrackId=?")) {
@@ -216,14 +216,16 @@ public class Track extends Model {
                                              Integer maxRuntime, Integer minRuntime) {
         LinkedList<Object> args = new LinkedList<>();
 
-        String query = "SELECT * FROM tracks " +
-                "JOIN albums ON tracks.AlbumId = albums.AlbumId " +
-                "WHERE name LIKE ?";
+        String query = "SELECT tracks.*, albums.Title as AlbumName, " +
+                "artists.Name as ArtistName FROM tracks " +
+                "JOIN albums ON albums.AlbumId = tracks.AlbumId " +
+                "JOIN artists ON artists.ArtistId = albums.ArtistId " +
+                "WHERE tracks.Name LIKE ?";
         args.add("%" + search + "%");
 
         // Conditionally include the query and argument
         if (artistId != null) {
-            query += " AND ArtistId=? ";
+            query += " AND artists.ArtistId=? ";
             args.add(artistId);
         }
 
@@ -248,12 +250,21 @@ public class Track extends Model {
     }
 
     public static List<Track> search(int page, int count, String orderBy, String search) {
-        String query = "SELECT * FROM tracks WHERE name LIKE ? LIMIT ?";
+    
+        String query = "SELECT tracks.*, albums.Title as AlbumName, " +
+                "artists.Name as ArtistName FROM tracks " +
+                "JOIN albums ON albums.AlbumId = tracks.AlbumId " +
+                "JOIN artists ON artists.ArtistId = albums.ArtistId " +
+                "WHERE tracks.Name LIKE ? " +
+                "ORDER BY " + orderBy + " LIMIT ? OFFSET ?";
+
         search = "%" + search + "%";
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
+
             stmt.setString(1, search);
             stmt.setInt(2, count);
+            stmt.setInt(3, (page-1)*count);
             ResultSet results = stmt.executeQuery();
             List<Track> resultList = new LinkedList<>();
             while (results.next()) {
@@ -266,7 +277,13 @@ public class Track extends Model {
     }
 
     public static List<Track> forAlbum(Long albumId) {
-        String query = "SELECT * FROM tracks WHERE AlbumId=?";
+    //    String query = "SELECT * FROM tracks WHERE AlbumId=?";
+        String query = "SELECT tracks.*, albums.Title as AlbumName, " +
+                "artists.Name as ArtistName FROM tracks " +
+                "JOIN albums ON albums.AlbumId = tracks.AlbumId " +
+                "JOIN artists ON artists.ArtistId = albums.ArtistId " +
+                "WHERE tracks.AlbumId = ?";
+
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setLong(1, albumId);
@@ -293,7 +310,7 @@ public class Track extends Model {
 
     public static List<Track> all(int page, int count, String orderBy) {
         String query = "SELECT tracks.*, albums.Title as AlbumName, " +
-                "artists.name as ArtistName FROM tracks " +
+                "artists.Name as ArtistName FROM tracks " +
                 "JOIN albums ON albums.AlbumId = tracks.AlbumId " +
                 "JOIN artists ON artists.ArtistId = albums.ArtistId " +
                 "ORDER BY " + orderBy + " LIMIT ? OFFSET ?";
@@ -312,8 +329,6 @@ public class Track extends Model {
             throw new RuntimeException(sqlException);
         }
     }
-
-//    String query = "SELECT * FROM tracks ORDER BY " + orderBy + " LIMIT ? OFFSET ?";
 
     @Override
     public boolean verify() {

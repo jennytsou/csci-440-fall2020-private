@@ -32,6 +32,7 @@ public class AlbumTest extends DBTest {
         album.setArtist(Artist.find(1));
 
         assertNull(album.getAlbumId());
+
         album.create();
         assertNotNull(album.getAlbumId());
 

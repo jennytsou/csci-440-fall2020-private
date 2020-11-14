@@ -283,8 +283,8 @@ public class Employee extends Model {
 
         public BigDecimal getSalesTotals() {
 
-             return salesTotals.setScale(2, BigDecimal.ROUND_DOWN);
-     //       return salesTotals;
+    //         return salesTotals.setScale(2, BigDecimal.ROUND_DOWN);
+            return salesTotals;
         }
     }
 

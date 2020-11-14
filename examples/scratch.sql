@@ -96,7 +96,7 @@ JOIN invoices ON invoices.CustomerId = customers.CustomerId
 WHERE employees.EmployeeId = 3;
 GROUP BY invoices.InvoiceId;
 
-SELECT tracks.TrackId, albums.AlbumId, artists.Name FROM tracks
-JOIN albums ON albums.AlbumId = tracks.TrackId
+SELECT tracks.*, albums.Title as atitle, artists.Name as artname FROM tracks
+JOIN albums ON albums.AlbumId = tracks.albumId
 JOIN artists ON artists.ArtistId = albums.ArtistId
-WHERE tracks.TrackId = 1;
+WHERE tracks.Name like '%a%' and artists.ArtistId = 1;
